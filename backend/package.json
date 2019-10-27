@@ -1,0 +1,23 @@
+{
+  "name": "rentaldock-backend",
+  "version": "1.0.0",
+  "description": "Backend for rentaldock",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "Viki Val",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.18.4"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "knex": "^0.19.5",
+    "knex-postgis": "^0.8.1",
+    "pg": "^7.12.1",
+    "pg-native": "^3.0.0"
+  }
+}
