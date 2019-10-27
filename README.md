@@ -20,8 +20,14 @@ Build a map-based application, which lets the user see geo-based data on a map a
 
 Fill in (either in English, or in Slovak):
 
-**Application description**: `<fill in>`
+**Application description**: 
 
-**Data source**: `<fill in>`
+Goal of this application is to find accomodation according to selected preferences in selected range.
+After user finds his/her favourite it shows all preferenced point/polygons on map.
+After that it shows path to selected point/polygon
 
-**Technologies used**: `<fill in>`
+**Data source**: `Using OpenLayers instead of MapBox`
+
+**Technologies used**: 
+`Fronted: Vue.JS + TypeScript`
+`Backend: Node.JS + Knex`
