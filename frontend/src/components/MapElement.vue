@@ -1,7 +1,7 @@
 
 <template>
-  <vl-feature :properties="{prop: 'value', prop2: 'value'}">
-    <vl-geom-point :coordinates="[ 17.064152399999998, 48.1587654 ]"></vl-geom-point>
+  <vl-feature :properties="element">
+    <vl-geom-point :coordinates="element.geo.coordinates"></vl-geom-point>
   </vl-feature>
 </template>
 

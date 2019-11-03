@@ -1,9 +1,9 @@
-const express = require('express');
-const knex = require('knex');
-const knexPostgis = require('knex-postgis');
-var cors = require('cors');
+const express = require('express')
+const knex = require('knex')
+const knexPostgis = require('knex-postgis')
+var cors = require('cors')
 
-const { DB_TABLE } = require('./constants')
+const { DB_TABLE, HOTELS } = require('./constants')
 const { hasColumn } = require('./utils')
 
 const app = express()
@@ -15,33 +15,67 @@ const db = knex({
   dialect: 'postgres',
   client: 'pg',
   connection: {
-    host : '127.0.0.1',
+    host: '127.0.0.1',
     port: '5432',
-    user : 'postgres',
-    database : 'slovakia'
-  }
-});
+    user: 'postgres',
+    database: 'slovakia',
+  },
+})
 
-const st = knexPostgis(db);
+const st = knexPostgis(db)
 
 // db('planet_osm_point').count('*').then(data => res.send(data))
 
-
 app.get('/api/shops', (req, res) => {
-  db.select('name', st.asGeoJSON(st.transform('way', 4326)).as('geo')).from(DB_TABLE.point).whereNotNull('name').andWhere('shop', 'supermarket').limit(10).then(data => res.send(data))
-  
+  db.select('name', st.asGeoJSON(st.transform('way', 4326)).as('geo'))
+    .from(DB_TABLE.point)
+    .whereNotNull('name')
+    .andWhere('shop', 'supermarket')
+    .limit(10)
+    .then(data => res.send(data))
 })
 
 app.get('/api/category/:type', ({ params }, res) => {
-  hasColumn(db, DB_TABLE.point, 'tourism', (has) => {
-    has && db(DB_TABLE.point).distinct('tourism').whereNotNull('tourism').then(data => res.send(data))
+  hasColumn(db, DB_TABLE.point, params.type, has => {
+    has &&
+      db(DB_TABLE.point)
+        .distinct(params.type)
+        .whereNotNull(params.type)
+        .then(data => res.send(data))
   })
 })
 
-// app.post('/api/:type/search', ({params, body}, res) => {
-//   regex = new RegExp(body.text.toLowerCase())
-//   res.send({ data: data[params.type].filter(item => item.name.toLowerCase().match(regex) || item.handle.toLowerCase().match(regex)) })
+app.get('/api/hotels', (req, res) => {
+  db.select('name', st.asGeoJSON(st.transform('way', 4326)).as('geo'))
+    .from(DB_TABLE.point)
+    .whereNotNull('name')
+    .whereIn('tourism', HOTELS)
+    .andWhere(
+      st.dwithin(
+        'way',
+        st.transform(st.setSRID(st.makePoint(17.064152399999998, 48.1587654), 4326), 3857),
+        10000
+      )
+    )
+    .limit(10)
+    .then(data => res.send(data))
+})
 
-// })
+app.post('/api/pois', ({params, body}, res) => {
+  const [ lat, long ] = body.coordinates
+  db.select('name', st.asGeoJSON(st.transform('way', 4326)).as('geo'))
+  .from(DB_TABLE.point)
+  .whereNotNull('name')
+  .andWhere(
+    st.dwithin(
+      'way',
+      st.transform(st.setSRID(st.makePoint(lat, long), 4326), 3857),
+      10000
+    )
+  )
+  .limit(10)
+  .then(data => res.send(data))
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+})
+
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));

@@ -9,8 +9,8 @@
     >
       <vl-view :zoom.sync="zoom" :center.sync="center" :rotation.sync="rotation"></vl-view>
 
-      <Interaction :selectedFeatures="selectedFeatures" />
-    
+      <Interaction :selectedFeatures="selectedFeatures" @selected="handleSelectedElement" />
+
       <vl-geoloc @update:position="handlePosition">
         <vl-feature id="position-feature">
           <vl-geom-point :coordinates="[ 17.064152399999998, 48.1587654 ]"></vl-geom-point>
@@ -20,7 +20,7 @@
         </vl-feature>
       </vl-geoloc>
 
-      <MapElementList :mapElements="[{}]" />
+      <MapElementList :mapElements="points" />
 
       <vl-layer-tile id="osm">
         <vl-source-osm></vl-source-osm>
@@ -36,27 +36,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, ProvideReactive } from "vue-property-decorator";
-import {
-  createProj,
-  addProj,
-  findPointOnSurface,
-  createStyle,
-  createMultiPointGeom,
-  loadingBBox
-} from "vuelayers/lib/ol-ext";
+import { Component, Vue } from "vue-property-decorator";
 import CordinationCard from "./CordinationCard.vue";
 import MapElementList from "./MapElementList.vue";
-import Interaction from './Interaction.vue';
+import Interaction from "./Interaction.vue";
 import axios from "axios";
+import { CoordinateList } from "@/types";
 
 @Component({
   components: {
     CordinationCard,
     MapElementList,
     Interaction
-  },
-  
+  }
 })
 export default class HelloWorld extends Vue {
   private zoom = 17;
@@ -75,13 +67,28 @@ export default class HelloWorld extends Vue {
   }
 
   mounted() {
+    axios.get("http://localhost:8080/api/hotels").then(
+      response =>
+        (this.points = response.data.map(({ name, geo }: any) => ({
+          name,
+          geo: JSON.parse(geo)
+        })))
+    );
+  }
+
+  handleSelectedElement(coordinates: CoordinateList) {
+    const { zoom } = this;
     axios
-      .get("http://localhost:8080/api/shops")
+      .post("http://localhost:8080/api/pois", {
+        coordinates,
+        zoom
+      })
       .then(
         response =>
           (this.points = response.data.map(({ name, geo }: any) => ({
             name,
-            geo: JSON.parse(geo)
+            geo: JSON.parse(geo),
+            isPOI: true
           })))
       );
   }

@@ -5,6 +5,9 @@ const DB_TABLE = {
   roads: 'planet_osm_roads'
 }
 
+const HOTELS = ['hotel', 'apartment', 'gallery', 'hostel',  'penzion', 'motel', 'camp_site' ]
+
 module.exports = {
-  DB_TABLE
+  DB_TABLE,
+  HOTELS
 }
