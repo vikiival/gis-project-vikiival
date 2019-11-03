@@ -53,7 +53,10 @@ app.get('/api/hotels', (req, res) => {
     .andWhere(
       st.dwithin(
         'way',
-        st.transform(st.setSRID(st.makePoint(17.064152399999998, 48.1587654), 4326), 3857),
+        st.transform(
+          st.setSRID(st.makePoint(17.064152399999998, 48.1587654), 4326),
+          3857
+        ),
         10000
       )
     )
@@ -61,21 +64,20 @@ app.get('/api/hotels', (req, res) => {
     .then(data => res.send(data))
 })
 
-app.post('/api/pois', ({params, body}, res) => {
-  const [ lat, long ] = body.coordinates
+app.post('/api/pois', ({ params, body }, res) => {
+  const [lat, long] = body.coordinates
   db.select('name', st.asGeoJSON(st.transform('way', 4326)).as('geo'))
-  .from(DB_TABLE.point)
-  .whereNotNull('name')
-  .andWhere(
-    st.dwithin(
-      'way',
-      st.transform(st.setSRID(st.makePoint(lat, long), 4326), 3857),
-      10000
+    .from(DB_TABLE.polygon)
+    .whereNotNull('name')
+    .andWhere(
+      st.dwithin(
+        'way',
+        st.transform(st.setSRID(st.makePoint(lat, long), 4326), 3857),
+        10000
+      )
     )
-  )
-  .limit(10)
-  .then(data => res.send(data))
-
+    .limit(10)
+    .then(data => res.send(data))
 })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(port, () => console.log(`Example app listening on port ${port}!`))

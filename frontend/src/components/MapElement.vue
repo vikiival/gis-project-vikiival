@@ -1,7 +1,7 @@
 
 <template>
   <vl-feature :properties="element">
-    <vl-geom-point :coordinates="element.geo.coordinates"></vl-geom-point>
+    <component :is="elementType[element.geo.type]" :coordinates="element.geo.coordinates" />
   </vl-feature>
 </template>
 
@@ -11,5 +11,10 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 @Component
 export default class MapElement extends Vue {
   @Prop() element!: any;
+  private elementType = {
+    Point: "vl-geom-point",
+    Polygon: "vl-geom-polygon",
+    Road: "vl-geom-line-string"
+  };
 }
 </script>
