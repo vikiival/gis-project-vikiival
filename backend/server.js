@@ -41,7 +41,7 @@ app.get('/api/category/:type', ({ params }, res) => {
       db(DB_TABLE.point)
         .distinct(params.type)
         .whereNotNull(params.type)
-        .then(data => res.send(data))
+        .then(data => res.send(data.map(el => el[params.type] )))
   })
 })
 

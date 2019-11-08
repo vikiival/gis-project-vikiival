@@ -43,12 +43,11 @@
             </header>
             <div class="card-content">
               <div class="content">
-                <p>
-                  Overlay popup content for Feature with ID
-                  <strong>{{ feature.id }}</strong>
-                </p>
-                <p>Popup: {{ JSON.stringify(popup) }}</p>
-                <p>Feature: {{ JSON.stringify({ id: feature.id, properties: feature.properties }) }}</p>
+                <PopupProperty label="Name" :value="feature.properties.name" />
+                <PopupProperty label="Id" :value="feature.id" />
+                <PopupProperty label="Popup position" :value="popup.position" />
+                <!-- <p>Popup: {{ JSON.stringify(popup) }}</p> -->
+                <!-- <p>Feature: {{ JSON.stringify({ id: feature.id, properties: feature.properties }) }}</p> -->
               </div>
             </div>
             <footer class="card-footer">
@@ -63,25 +62,27 @@
 </template>
 
 <script lang="ts">
-  import { Component, PropSync, Vue, Emit } from 'vue-property-decorator';
-  import MapElement from './MapElement.vue';
-  import { findPointOnSurface } from 'vuelayers/lib/ol-ext';
+import { Component, PropSync, Vue, Emit } from "vue-property-decorator";
+import MapElement from "./MapElement.vue";
+import { findPointOnSurface } from "vuelayers/lib/ol-ext";
+import PopupProperty from './PopupProperty.vue'
 
-  @Component({
-    components: {
-      MapElement
-    },
-    methods: {
-      pointOnSurface: findPointOnSurface
-    }
-  })
-  export default class Interaction extends Vue {
-    @PropSync('selectedFeatures') syncedElements!: any[];
-
-    @Emit('selected')
-    handleSelected(feature: any) {
-      console.log(feature);
-      return feature.geometry.coordinates
-    }
+@Component({
+  components: {
+    MapElement,
+    PopupProperty
+  },
+  methods: {
+    pointOnSurface: findPointOnSurface
   }
+})
+export default class Interaction extends Vue {
+  @PropSync("selectedFeatures") syncedElements!: any[];
+
+  @Emit("selected")
+  handleSelected(feature: any) {
+    console.log(feature);
+    return feature.geometry.coordinates;
+  }
+}
 </script>

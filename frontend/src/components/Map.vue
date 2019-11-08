@@ -19,12 +19,9 @@
           </vl-style-box>
         </vl-feature>
       </vl-geoloc>
-      <vl-feature id="polygon" :properties="{prop: 'value', prop2: 'value'}">
-        <vl-geom-polygon
-          :coordinates="[[[17.0283064,48.1426274999035],[17.0294762,48.1421362999036],[17.0310753,48.1415983999037],[17.0327913,48.1413122999038],[17.0341707,48.1412478999038],[17.0357606,48.1412153999038],[17.0363706,48.1412868999038],[17.0368312,48.1414581999038],[17.0349843,48.1415402999037],[17.0326666,48.1416709999037],[17.0309181,48.1419875999036],[17.0283064,48.1426274999035]]]"
-        ></vl-geom-polygon>
-      </vl-feature>
+      
       <MapElementList :mapElements="points" />
+      <MapElementList :mapElements="pois" />
 
       <vl-layer-tile id="osm">
         <vl-source-osm></vl-source-osm>
@@ -64,6 +61,7 @@ export default class HelloWorld extends Vue {
   private clickCoordinate: any;
   private geoloc: any;
   selectedFeatures: any = [];
+  private pois: any = [];
   // private yyy = debounce(this.xxx, 1500)
 
   handlePosition(event: any) {
@@ -92,7 +90,7 @@ export default class HelloWorld extends Vue {
       .then(response => {
         console.log(response.data);
 
-        this.points = response.data.map(({ name, geo }: any) => ({
+        this.pois = response.data.map(({ name, geo }: any) => ({
           name,
           geo: JSON.parse(geo),
           isPOI: true
