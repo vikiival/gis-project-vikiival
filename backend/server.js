@@ -57,9 +57,15 @@ app.get('/api/hotels', (req, res) => {
           st.setSRID(st.makePoint(17.064152399999998, 48.1587654), 4326),
           3857
         ),
-        10000
+        3000
       )
-    )
+    ).orderBy(st.distance(
+      'way',
+      st.transform(
+        st.setSRID(st.makePoint(17.064152399999998, 48.1587654), 4326),
+        3857
+      )
+    ), 'asc')
     .limit(10)
     .then(data => res.send(data))
 })

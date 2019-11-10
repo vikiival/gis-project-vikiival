@@ -6,8 +6,9 @@
       style="height: 80vh"
       data-projection="EPSG:4326"
       @click="handleCordinateClick"
+      ref="mapMap"
     >
-      <vl-view :zoom.sync="zoom" :center.sync="center" :rotation.sync="rotation"></vl-view>
+      <vl-view ref="mapMapMap" :zoom.sync="zoom" :center.sync="center" :rotation.sync="rotation"></vl-view>
 
       <Interaction :selectedFeatures="selectedFeatures" @selected="handleSelectedElement" />
 
@@ -18,10 +19,23 @@
             <vl-style-icon src="../assets/marker.png" :scale="0.4" :anchor="[0.5, 1]"></vl-style-icon>
           </vl-style-box>
         </vl-feature>
-      </vl-geoloc>
-      
+      </vl-geoloc>      
       <MapElementList :mapElements="points" />
       <MapElementList :mapElements="pois" />
+<!-- 
+      <vl-feature>
+      <vl-geom-line-string :coordinates="[[17.1515631,48.1495842],[17.1516648,48.1492922]]"></vl-geom-line-string>
+    </vl-feature>
+      <vl-feature>
+      <vl-geom-line-string :coordinates="[[17.1516648, 48.1492922], [17.152561, 48.149423]]"></vl-geom-line-string>
+    </vl-feature>
+     <vl-feature>
+      <vl-geom-line-string :coordinates="[[17.152561, 48.149423], [17.1531377, 48.1495]]"></vl-geom-line-string>
+    </vl-feature>
+     <vl-feature>
+      <vl-geom-line-string :coordinates="[[17.1531377, 48.1495], [17.1530975, 48.149645]]"></vl-geom-line-string>
+    </vl-feature> -->
+
 
       <vl-layer-tile id="osm">
         <vl-source-osm></vl-source-osm>
@@ -42,8 +56,9 @@ import CordinationCard from "./CordinationCard.vue";
 import MapElementList from "./MapElementList.vue";
 import Interaction from "./Interaction.vue";
 import axios from "axios";
-import { CoordinateList } from "@/types";
+import { CoordinateList } from "../types";
 import debounce from "debounce";
+// import {fromLonLat} from 'ol/proj';
 
 @Component({
   components: {
@@ -56,12 +71,14 @@ export default class HelloWorld extends Vue {
   private zoom = 17;
   private geolocPosition = null;
   private center = [17.064152399999998, 48.1587654];
+  // private center =[17.1515631,48.1495842];
   private rotation = 0;
   private points: any[] = [];
   private clickCoordinate: any;
   private geoloc: any;
   selectedFeatures: any = [];
   private pois: any = [];
+  
   // private yyy = debounce(this.xxx, 1500)
 
   handlePosition(event: any) {
@@ -100,6 +117,7 @@ export default class HelloWorld extends Vue {
 
   handleCordinateClick(event: any) {
     console.log(event);
+    // console.log(fromLonLat([17.064152399999998, 48.1587654]));  
   }
 
   xxx(event: any) {

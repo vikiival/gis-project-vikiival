@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --port 3006",
+    "start": "vue-cli-service serve --port 3006",
     "build": "vue-cli-service build"
   },
   "dependencies": {
