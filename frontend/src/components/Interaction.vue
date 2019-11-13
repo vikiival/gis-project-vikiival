@@ -44,14 +44,14 @@
             <div class="card-content">
               <div class="content">
                 <PopupProperty label="Name" :value="feature.properties.name" />
-                <PopupProperty label="Id" :value="feature.id" />
+                <PopupProperty label="OSM Id" :value="feature.properties.id" />
                 <PopupProperty label="Popup position" :value="popup.position" />
                 <!-- <p>Popup: {{ JSON.stringify(popup) }}</p> -->
                 <!-- <p>Feature: {{ JSON.stringify({ id: feature.id, properties: feature.properties }) }}</p> -->
               </div>
             </div>
             <footer class="card-footer">
-              <a @click="handleSelected(feature)" class="card-footer-item">Show nearest</a>
+              <a @click="handleSelected(feature)" class="card-footer-item">{{ featureName(feature) }}</a>
             </footer>
           </section>
         </template>
@@ -78,11 +78,27 @@ import PopupProperty from './PopupProperty.vue'
 })
 export default class Interaction extends Vue {
   @PropSync("selectedFeatures") syncedElements!: any[];
+    
+  
+  handleSelected(feature: any) {
+    feature.properties.isPOI 
+    ? this.addedPoi(feature)
+    : this.selectedPoint(feature);
+  }
 
   @Emit("selected")
-  handleSelected(feature: any) {
+  selectedPoint(feature: any) {
     console.log(feature);
     return feature.geometry.coordinates;
+  }
+
+  @Emit("add:poi")
+  addedPoi(feature: any) {
+    return feature
+  } 
+
+  featureName(feature: any): string {
+    return feature.properties.isPOI ? 'Add to List' : 'Show nearest';
   }
 }
 </script>

@@ -72,8 +72,8 @@ app.get('/api/hotels', (req, res) => {
 
 app.post('/api/pois', ({ params, body }, res) => {
   const [lat, long] = body.coordinates
-  db.select('name', st.asGeoJSON(st.transform('way', 4326)).as('geo'))
-    .from(DB_TABLE.polygon)
+  db.select('name','osm_id', st.asGeoJSON(st.transform('way', 4326)).as('geo'))
+    .from(DB_TABLE.point)
     .whereNotNull('name')
     .andWhere(
       st.dwithin(
@@ -85,5 +85,55 @@ app.post('/api/pois', ({ params, body }, res) => {
     .limit(10)
     .then(data => res.send(data))
 })
+
+app.post('/api/path', async ({ params, body }, res) => {
+  const [lat, long] = body.coordinates
+  const [latP, longP] = body.pois
+
+  const sourcePoints = await db.select('id')
+  .from(DB_TABLE.vertices)
+  .orderBy(
+    st.distance(
+      'the_geom',
+      st.setSRID(st.makePoint(lat, long), 4326)
+    )
+  )
+  .limit(10)
+
+  const targetPoints = await db.select('id')
+  .from(DB_TABLE.vertices)
+  .orderBy(
+    st.distance(
+      'the_geom',
+      st.setSRID(st.makePoint(latP, longP), 4326)
+    )
+
+  )
+  .limit(10)
+
+  const source = sourcePoints.reduce((prev, act) => prev.id > act.id ? prev.id : act.id)
+  const target = targetPoints.reduce((prev, act) => prev.id > act.id ? prev.id : act.id)
+  console.log('source and target' ,source, target);
+  
+
+  db.raw(
+    `
+  SELECT dijkstra.*, ways.name, st_asgeojson(ways.the_geom) as geom
+FROM pgr_dijkstra('
+      SELECT gid AS id,
+             source,
+             target,
+             cost_s AS cost
+            FROM ways', ${source}, ${target}, false) AS dijkstra
+         LEFT JOIN ways
+                   ON (edge = gid)
+where ways.the_geom is not null
+ORDER BY seq;
+  `
+  ).then(({rows}) => res.send(rows))
+
+})
+
+
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

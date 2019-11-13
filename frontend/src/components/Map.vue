@@ -10,7 +10,7 @@
     >
       <vl-view ref="mapMapMap" :zoom.sync="zoom" :center.sync="center" :rotation.sync="rotation"></vl-view>
 
-      <Interaction :selectedFeatures="selectedFeatures" @selected="handleSelectedElement" />
+      <Interaction :selectedFeatures="selectedFeatures" @selected="handleSelectedElement" @add:poi="handleAddedPoi" />
 
       <vl-geoloc @update:position="handlePosition">
         <vl-feature id="position-feature">
@@ -59,6 +59,7 @@ import axios from "axios";
 import { CoordinateList } from "../types";
 import debounce from "debounce";
 // import {fromLonLat} from 'ol/proj';
+import bus from '../bus'
 
 @Component({
   components: {
@@ -68,7 +69,7 @@ import debounce from "debounce";
   }
 })
 export default class HelloWorld extends Vue {
-  private zoom = 17;
+  private zoom = 15;
   private geolocPosition = null;
   private center = [17.064152399999998, 48.1587654];
   // private center =[17.1515631,48.1495842];
@@ -78,6 +79,7 @@ export default class HelloWorld extends Vue {
   private geoloc: any;
   selectedFeatures: any = [];
   private pois: any = [];
+  private selectedHotel: CoordinateList = [null, null];
   
   // private yyy = debounce(this.xxx, 1500)
 
@@ -85,6 +87,10 @@ export default class HelloWorld extends Vue {
     console.log(event);
 
     this.geolocPosition = event;
+  }
+
+  created() {
+    bus.$on("add", this.handleSelectedPois);
   }
 
   mounted() {
@@ -99,6 +105,7 @@ export default class HelloWorld extends Vue {
 
   handleSelectedElement(coordinates: CoordinateList) {
     const { zoom } = this;
+    this.selectedHotel = coordinates
     axios
       .post("http://localhost:8080/api/pois", {
         coordinates,
@@ -107,8 +114,9 @@ export default class HelloWorld extends Vue {
       .then(response => {
         console.log(response.data);
 
-        this.pois = response.data.map(({ name, geo }: any) => ({
+        this.pois = response.data.map(({ name, osm_id,  geo }: any) => ({
           name,
+          id: osm_id,
           geo: JSON.parse(geo),
           isPOI: true
         }));
@@ -122,6 +130,23 @@ export default class HelloWorld extends Vue {
 
   xxx(event: any) {
     console.log(event);
+  }
+
+  handleAddedPoi(poi: any) {
+    console.log(poi);
+    bus.$emit('add', {...poi})
+  }
+
+  handleSelectedPois(pois: any[]) {
+    const { selectedHotel, zoom } = this;
+    console.log('selected hotel,', selectedHotel, pois);
+    
+    // axios
+    //   .post("http://localhost:8080/api/path", {
+    //     coordinates: selectedHotel,
+    //     zoom,
+    //     pois
+    //   })
   }
 }
 </script>

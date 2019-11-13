@@ -10,7 +10,7 @@
 import { Component, Prop, Vue, Emit } from "vue-property-decorator";
 
 @Component
-export default class Interaction extends Vue {
+export default class PopupProperty extends Vue {
   @Prop() label!: string;
   @Prop() value!: any;
 }

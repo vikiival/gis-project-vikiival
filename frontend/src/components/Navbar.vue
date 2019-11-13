@@ -2,7 +2,7 @@
   <b-navbar>
     <template slot="brand">
       <b-navbar-item tag="router-link" :to="{ path: '/' }">
-        <h1 class="title is-1">Rental Dock</h1>
+        <h1 class="title is-1">Path Advisor</h1>
       </b-navbar-item>
     </template>
     <template slot="start">

@@ -21,6 +21,8 @@
         <b-slider :value="20"></b-slider>
       </b-field>
       <b-button type="is-primary" class="submit-button" rounded>Submit</b-button>
+      <PopupProperty v-for="(poi, index) in addedPois" :key="index" label="hotel" :value="poi.properties.name" />
+      <b-button type="is-secondary" @click="handleTrip" v-if="addedPois.length" class="submit-button" rounded>Go Trip</b-button>
     </div>
   </div>
 </template>
@@ -28,12 +30,30 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import axios from "axios";
+import bus from "../bus";
+import PopupProperty from './PopupProperty.vue'
 
-@Component
+@Component({
+  components: {
+    PopupProperty
+  }
+})
 export default class Sidebar extends Vue {
   private name: string = "";
   private tags: Array<string> = [];
   private selectedOptions = [];
+  private addedPois = []
+
+  created() {
+    bus.$on("add", poi => {
+      console.log('poi', poi);
+      this.addedPois = [...this.addedPois, poi]
+    });
+  }
+
+  handleTrip() {
+    bus.$emit('trip', this.addedPois.map(poi => poi.properties.id))
+  }
 
   mounted() {
     axios
