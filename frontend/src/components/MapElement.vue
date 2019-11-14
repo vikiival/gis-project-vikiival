@@ -14,7 +14,8 @@ export default class MapElement extends Vue {
   private elementType = {
     Point: "vl-geom-point",
     Polygon: "vl-geom-polygon",
-    Road: "vl-geom-line-string"
+    Road: "vl-geom-line-string",
+    LineString: "vl-geom-line-string"
   };
 }
 </script>

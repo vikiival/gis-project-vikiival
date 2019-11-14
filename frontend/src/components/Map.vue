@@ -22,6 +22,7 @@
       </vl-geoloc>      
       <MapElementList :mapElements="points" />
       <MapElementList :mapElements="pois" />
+      <MapElementList :mapElements="path" />
 <!-- 
       <vl-feature>
       <vl-geom-line-string :coordinates="[[17.1515631,48.1495842],[17.1516648,48.1492922]]"></vl-geom-line-string>
@@ -80,6 +81,7 @@ export default class HelloWorld extends Vue {
   selectedFeatures: any = [];
   private pois: any = [];
   private selectedHotel: CoordinateList = [null, null];
+  private path: any = []
   
   // private yyy = debounce(this.xxx, 1500)
 
@@ -137,16 +139,26 @@ export default class HelloWorld extends Vue {
     bus.$emit('add', {...poi})
   }
 
-  handleSelectedPois(pois: any[]) {
+  handleSelectedPois({geometry}: any) {
     const { selectedHotel, zoom } = this;
-    console.log('selected hotel,', selectedHotel, pois);
+    console.log('selected hotel,', selectedHotel, geometry.coordinates);
+    const pois = geometry.coordinates
     
-    // axios
-    //   .post("http://localhost:8080/api/path", {
-    //     coordinates: selectedHotel,
-    //     zoom,
-    //     pois
-    //   })
+    axios
+      .post("http://localhost:8080/api/path", {
+        coordinates: selectedHotel,
+        zoom,
+        pois
+      })
+      .then(response => {
+        console.log(response.data);
+
+        this.path = response.data.map(({ seq, node, name,  geo }: any) => ({
+          name: name || seq,
+          id: node,
+          geo: JSON.parse(geo),
+        }));
+      });
   }
 }
 </script>

@@ -116,21 +116,19 @@ app.post('/api/path', async ({ params, body }, res) => {
   console.log('source and target' ,source, target);
   
 
-  db.raw(
-    `
-  SELECT dijkstra.*, ways.name, st_asgeojson(ways.the_geom) as geom
-FROM pgr_dijkstra('
-      SELECT gid AS id,
-             source,
-             target,
-             cost_s AS cost
-            FROM ways', ${source}, ${target}, false) AS dijkstra
-         LEFT JOIN ways
-                   ON (edge = gid)
-where ways.the_geom is not null
-ORDER BY seq;
-  `
-  ).then(({rows}) => res.send(rows))
+  db.raw(`
+    SELECT dijkstra.*, ways.name, st_asgeojson(ways.the_geom) as geo
+    FROM pgr_dijkstra('
+          SELECT gid AS id,
+                source,
+                target,
+                cost_s AS cost
+                FROM ways', ${source}, ${target}, false) AS dijkstra
+            LEFT JOIN ways
+                      ON (edge = gid)
+    where ways.the_geom is not null
+    ORDER BY seq;
+  `).then(({rows}) => res.send(rows))
 
 })
 
