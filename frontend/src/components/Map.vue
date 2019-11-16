@@ -23,20 +23,6 @@
       <MapElementList :mapElements="points" />
       <MapElementList :mapElements="pois" />
       <MapElementList :mapElements="path" />
-<!-- 
-      <vl-feature>
-      <vl-geom-line-string :coordinates="[[17.1515631,48.1495842],[17.1516648,48.1492922]]"></vl-geom-line-string>
-    </vl-feature>
-      <vl-feature>
-      <vl-geom-line-string :coordinates="[[17.1516648, 48.1492922], [17.152561, 48.149423]]"></vl-geom-line-string>
-    </vl-feature>
-     <vl-feature>
-      <vl-geom-line-string :coordinates="[[17.152561, 48.149423], [17.1531377, 48.1495]]"></vl-geom-line-string>
-    </vl-feature>
-     <vl-feature>
-      <vl-geom-line-string :coordinates="[[17.1531377, 48.1495], [17.1530975, 48.149645]]"></vl-geom-line-string>
-    </vl-feature> -->
-
 
       <vl-layer-tile id="osm">
         <vl-source-osm></vl-source-osm>
@@ -80,7 +66,7 @@ export default class HelloWorld extends Vue {
   private geoloc: any;
   selectedFeatures: any = [];
   private pois: any = [];
-  private selectedHotel: CoordinateList = [null, null];
+  // private selectedHotel: CoordinateList = [null, null];
   private path: any = []
   
   // private yyy = debounce(this.xxx, 1500)
@@ -105,9 +91,12 @@ export default class HelloWorld extends Vue {
     );
   }
 
-  handleSelectedElement(coordinates: CoordinateList) {
+  handleSelectedElement(feature: any) {
     const { zoom } = this;
-    this.selectedHotel = coordinates
+    const { coordinates } = feature.geometry
+    
+    // this.selectedHotel = feature
+    bus.$emit('select', {...feature})
     axios
       .post("http://localhost:8080/api/pois", {
         coordinates,

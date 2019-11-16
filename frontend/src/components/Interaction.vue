@@ -89,7 +89,8 @@ export default class Interaction extends Vue {
   @Emit("selected")
   selectedPoint(feature: any) {
     console.log(feature);
-    return feature.geometry.coordinates;
+    // return feature.geometry.coordinates;
+    return feature;
   }
 
   @Emit("add:poi")

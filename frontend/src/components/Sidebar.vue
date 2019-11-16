@@ -4,6 +4,7 @@
       <p class="card-header-title">Filters</p>
     </header>
     <div class="filter-wrapper">
+      <DataCard v-if="selectedHotel" :item="selectedHotel" @close="handleHotelClose" />
       <b-field>
         <b-input v-model="name" placeholder="Hotel Name" rounded expanded></b-input>
       </b-field>
@@ -21,7 +22,8 @@
         <b-slider :value="20"></b-slider>
       </b-field>
       <b-button type="is-primary" class="submit-button" rounded>Submit</b-button>
-      <PopupProperty v-for="(poi, index) in addedPois" :key="index" label="hotel" :value="poi.properties.name" />
+      <DataCard v-for="(poi, index) in addedPois" :key="index" :item="poi" @close="handlePoiClose" />
+      <!-- <PopupProperty v-for="(poi, index) in addedPois" :key="index" label="hotel" :value="poi.properties.name" /> -->
       <b-button type="is-secondary" @click="handleTrip" v-if="addedPois.length" class="submit-button" rounded>Go Trip</b-button>
     </div>
   </div>
@@ -32,27 +34,43 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import axios from "axios";
 import bus from "../bus";
 import PopupProperty from './PopupProperty.vue'
+import DataCard from './DataCard.vue'
 
 @Component({
   components: {
-    PopupProperty
+    PopupProperty,
+    DataCard
   }
 })
 export default class Sidebar extends Vue {
   private name: string = "";
   private tags: Array<string> = [];
   private selectedOptions = [];
-  private addedPois = []
+  private addedPois = [];
+  private selectedHotel: any = null;
 
   created() {
     bus.$on("add", poi => {
       console.log('poi', poi);
       this.addedPois = [...this.addedPois, poi]
     });
+
+    bus.$on("select", feature => {
+      console.log('select', feature);
+      this.selectedHotel = feature;
+    });
   }
 
   handleTrip() {
-    bus.$emit('trip', this.addedPois.map(poi => poi.properties.id))
+    bus.$emit('trip', this.addedPois.map((poi: any) => poi.properties.id))
+  }
+
+  handleHotelClose(id: string) {
+    this.selectedHotel = null;
+  }
+
+  handlePoiClose(id: string) {
+    this.addedPois = this.addedPois.filter((poi: any) => poi.id !== id);
   }
 
   mounted() {
