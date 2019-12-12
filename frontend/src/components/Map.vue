@@ -66,7 +66,7 @@ export default class HelloWorld extends Vue {
   private geoloc: any;
   selectedFeatures: any = [];
   private pois: any = [];
-  // private selectedHotel: CoordinateList = [null, null];
+  private selectedHotel: CoordinateList = null;
   private path: any = []
   
   // private yyy = debounce(this.xxx, 1500)
@@ -78,7 +78,7 @@ export default class HelloWorld extends Vue {
   }
 
   created() {
-    bus.$on("add", this.handleSelectedPois);
+    bus.$on("trip", this.handleSelectedPois);
   }
 
   mounted() {
@@ -95,7 +95,7 @@ export default class HelloWorld extends Vue {
     const { zoom } = this;
     const { coordinates } = feature.geometry
     
-    // this.selectedHotel = feature
+    this.selectedHotel = feature
     bus.$emit('select', {...feature})
     axios
       .post("http://localhost:8080/api/pois", {
@@ -128,16 +128,14 @@ export default class HelloWorld extends Vue {
     bus.$emit('add', {...poi})
   }
 
-  handleSelectedPois({geometry}: any) {
+  handleSelectedPois(payload: any) {
     const { selectedHotel, zoom } = this;
-    console.log('selected hotel,', selectedHotel, geometry.coordinates);
-    const pois = geometry.coordinates
+    console.log('selected hotel,', payload);
     
     axios
       .post("http://localhost:8080/api/path", {
-        coordinates: selectedHotel,
+        ...payload,
         zoom,
-        pois
       })
       .then(response => {
         console.log(response.data);

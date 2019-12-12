@@ -62,7 +62,10 @@ export default class Sidebar extends Vue {
   }
 
   handleTrip() {
-    bus.$emit('trip', this.addedPois.map((poi: any) => poi.properties.id))
+    bus.$emit('trip', {
+      coordinates: this.selectedHotel.geometry.coordinates,
+      pois: this.addedPois.map((poi: any) => poi.geometry.coordinates)
+    })
   }
 
   handleHotelClose(id: string) {

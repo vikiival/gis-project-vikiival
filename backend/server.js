@@ -88,7 +88,10 @@ app.post('/api/pois', ({ params, body }, res) => {
 
 app.post('/api/path', async ({ params, body }, res) => {
   const [lat, long] = body.coordinates
-  const [latP, longP] = body.pois
+  const [latP, longP] = body.pois[0]
+
+  console.log(body);
+  
 
   const sourcePoints = await db.select('id')
   .from(DB_TABLE.vertices)
