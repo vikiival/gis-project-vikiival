@@ -142,21 +142,30 @@ export default class HelloWorld extends Vue {
     const { selectedHotel, zoom } = this;
     console.log('selected hotel,', payload);
     this.showNotification('Looking for path please wait')
+
+    Promise.all(payload.pois.map(poi => axios.post("http://localhost:8080/api/path", {
+      coordinates: payload.coordinates,
+      pois: [poi]
+    })))
+    .then(res => res.map((r: any) => r.data))
+    .then(mapped => {
+      this.path = mapped.reduce((a, b) => [...a, ...b])
+    })
     
-    axios
-      .post("http://localhost:8080/api/path", {
-        ...payload,
-        zoom,
-      })
-      .then(({data}) => {
-        console.log('path',data.length);
-        this.path = data;
-        if (data.length) {
-          this.showNotification('Path found', this.snackbarTypes.success)
-        } else {
-          this.showNotification('Path not found :(', this.snackbarTypes.danger)
-        }
-      });
+    // axios
+    //   .post("http://localhost:8080/api/path", {
+    //     ...payload,
+    //     zoom,
+    //   })
+    //   .then(({data}) => {
+    //     console.log('path',data.length);
+    //     this.path = data;
+    //     if (data.length) {
+    //       this.showNotification('Path found', this.snackbarTypes.success)
+    //     } else {
+    //       this.showNotification('Path not found :(', this.snackbarTypes.danger)
+    //     }
+    //   });
   }
 
   viewMounted() {
