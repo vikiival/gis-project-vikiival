@@ -107,10 +107,10 @@ app.post('/api/path', async ({ params, body }, res) => {
   const source = sourcePoints.reduce((prev, act) => prev.id > act.id ? prev.id : act.id)
   const target = targetPoints.reduce((prev, act) => prev.id > act.id ? prev.id : act.id)
   console.log('source and target' ,source, target);
+  // SELECT dijkstra.*, ways.name, st_asgeojson(ways.the_geom)::json as geo
   
-
   db.raw(`
-    SELECT dijkstra.*, ways.name, st_asgeojson(ways.the_geom) as geo
+    SELECT ways.name as name, st_asgeojson(ways.the_geom)::json as geo
     FROM pgr_dijkstra('
           SELECT gid AS id,
                 source,

@@ -76,6 +76,20 @@ export default class HelloWorld extends Vue {
   private selectedHotel: CoordinateList = null;
   private path: any = [];
   private extent: any = [];
+    private snackbarTypes = {
+    success: {
+      type: 'is-success',
+      actionText: 'Cool!',
+    },
+    info: {
+      type: 'is-info',
+      actionText: 'OK',
+    },
+    danger: {
+      type: 'is-danger',
+      actionText: 'Oh no!',
+    },
+  };
   
   private yyy = debounce(this.updateExtent, 700)
 
@@ -127,20 +141,21 @@ export default class HelloWorld extends Vue {
   handleSelectedPois(payload: any) {
     const { selectedHotel, zoom } = this;
     console.log('selected hotel,', payload);
+    this.showNotification('Looking for path please wait')
     
     axios
       .post("http://localhost:8080/api/path", {
         ...payload,
         zoom,
       })
-      .then(response => {
-        console.log(response.data);
-
-        this.path = response.data.map(({ seq, node, name,  geo }: any) => ({
-          name: name || seq,
-          id: node,
-          geo: JSON.parse(geo),
-        }));
+      .then(({data}) => {
+        console.log('path',data.length);
+        this.path = data;
+        if (data.length) {
+          this.showNotification('Path found', this.snackbarTypes.success)
+        } else {
+          this.showNotification('Path not found :(', this.snackbarTypes.danger)
+        }
       });
   }
 
@@ -160,6 +175,18 @@ export default class HelloWorld extends Vue {
       this.extent = transformExtent(olView.calculateExtent(), 'EPSG:3857', 'EPSG:4326')
       !xx && this.findHotels()
     }
+
+   private showNotification(message: string | null, params = this.snackbarTypes.info) {
+    this.$buefy.snackbar.open({
+      duration: 5000,
+      message,
+      type: 'is-success',
+      position: 'is-top-right',
+      actionText: 'OK',
+      queue: false,
+      ...params,
+    });
+  } 
 
 
 }
