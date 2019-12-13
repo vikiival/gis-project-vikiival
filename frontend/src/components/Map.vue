@@ -76,6 +76,7 @@ export default class HelloWorld extends Vue {
   private selectedHotel: CoordinateList = null;
   private path: any = [];
   private extent: any = [];
+  private hotelName = null;
     private snackbarTypes = {
     success: {
       type: 'is-success',
@@ -102,6 +103,7 @@ export default class HelloWorld extends Vue {
   created() {
     bus.$on("trip", this.handleSelectedPois);
     bus.$on('search', this.handleSearch);
+    bus.$on('hotelname', this.searchByHotelName)
   }
 
 
@@ -129,8 +131,13 @@ export default class HelloWorld extends Vue {
 
   findHotels() {
     axios
-    .post("http://localhost:8080/api/hotels", { extent: this.extent })
+    .post("http://localhost:8080/api/hotels", { extent: this.extent, hotelName: this.hotelName })
     .then(({data}) => this.points = data)
+  }
+
+  searchByHotelName(hotelName: any) {
+    this.hotelName = hotelName
+    this.findHotels()
   }
 
   handleAddedPoi(poi: any) {
@@ -150,6 +157,11 @@ export default class HelloWorld extends Vue {
     .then(res => res.map((r: any) => r.data))
     .then(mapped => {
       this.path = mapped.reduce((a, b) => [...a, ...b])
+      if (this.path.length) {
+          this.showNotification('Path found', this.snackbarTypes.success)
+        } else {
+          this.showNotification('Path not found :(', this.snackbarTypes.danger)
+        }
     })
     
     // axios

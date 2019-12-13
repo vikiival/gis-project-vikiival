@@ -48,7 +48,7 @@ app.get('/api/category/:type', ({ params }, res) => {
 app.post('/api/hotels', ({ body }, res) => {
   const [minx, miny, maxx, maxy] = body.extent
   
-  db
+  let query = db
     .select(db.raw(
       `name, osm_id as id, st_asgeojson(st_transform(way, 4326))::json as geo, hstore_to_json(tags) as meta`
     ))
@@ -58,11 +58,17 @@ app.post('/api/hotels', ({ body }, res) => {
     .whereRaw(`
     ST_Contains(st_makeenvelope(${minx}, ${miny}, ${maxx}, ${maxy}, 4326), st_transform(way, 4326))
     `)
-    .then(data => res.send(data))
+    
+    if (body.hotelName) {
+      query.whereRaw("search_tag @@ to_tsquery('sk', ?)", [body.hotelName])
+    }
+
+    query.then(data => res.send(data))
 })
 
 app.post('/api/pois', ({ params, body }, res) => {
   const [lat, long] = body.coordinates
+  const { range } = body
   db.select('name','osm_id', st.asGeoJSON(st.transform('way', 4326)).as('geo'))
     .from(DB_TABLE.point)
     .whereNotNull('name')
@@ -70,7 +76,7 @@ app.post('/api/pois', ({ params, body }, res) => {
       st.dwithin(
         'way',
         st.transform(st.setSRID(st.makePoint(lat, long), 4326), 3857),
-        10000
+        range || 10000
       )
     )
     .then(data => res.send(data))
