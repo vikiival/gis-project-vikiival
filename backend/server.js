@@ -45,28 +45,19 @@ app.get('/api/category/:type', ({ params }, res) => {
   })
 })
 
-app.get('/api/hotels', (req, res) => {
-  db.select('name', st.asGeoJSON(st.transform('way', 4326)).as('geo'))
+app.post('/api/hotels', ({ body }, res) => {
+  const [minx, miny, maxx, maxy] = body.extent
+  
+  db
+    .select(db.raw(
+      `name, osm_id as id, st_asgeojson(st_transform(way, 4326))::json as geo, hstore_to_json(tags) as meta`
+    ))
     .from(DB_TABLE.point)
     .whereNotNull('name')
     .whereIn('tourism', HOTELS)
-    .andWhere(
-      st.dwithin(
-        'way',
-        st.transform(
-          st.setSRID(st.makePoint(17.064152399999998, 48.1587654), 4326),
-          3857
-        ),
-        3000
-      )
-    ).orderBy(st.distance(
-      'way',
-      st.transform(
-        st.setSRID(st.makePoint(17.064152399999998, 48.1587654), 4326),
-        3857
-      )
-    ), 'asc')
-    .limit(10)
+    .whereRaw(`
+    ST_Contains(st_makeenvelope(${minx}, ${miny}, ${maxx}, ${maxy}, 4326), st_transform(way, 4326))
+    `)
     .then(data => res.send(data))
 })
 
@@ -162,6 +153,13 @@ app.post('/api/search', ({ body }, res) => {
     }
 
     query.then(data => res.send(data.map(el => ({ ...el, isPOI: true }))))
+})
+
+
+app.get('/api/kek', (req, res) => {
+  db
+  .raw(`select st_asgeojson(st_envelope('LINESTRING(17.035887268561574 48.145116112475534, 17.09792420449326 48.1737239281984 )'::geometry))::json as geo`)
+  .then(({rows}) => res.send(rows))
 })
 
 

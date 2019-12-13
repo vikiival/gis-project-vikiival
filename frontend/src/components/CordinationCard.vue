@@ -9,6 +9,8 @@
     <div class="content">
       Zoom: {{ zoom }}
       <br />
+      Extent: {{ extent }}
+      <br />
       Center: {{ center }}
       <br />
       Rotation: {{ rotation }}
@@ -28,5 +30,6 @@ export default class CordinationCard extends Vue {
   @Prop() center!: number[]
   @Prop() rotation!: number
   @Prop() geolocPosition!: number[]
+  @Prop() extent!: number[]
 }
 </script>

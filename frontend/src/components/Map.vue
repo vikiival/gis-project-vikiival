@@ -6,9 +6,14 @@
       style="height: 80vh"
       data-projection="EPSG:4326"
       @click="handleCordinateClick"
-      ref="mapMap"
+      ref="map"
     >
-      <vl-view ref="mapMapMap" :zoom.sync="zoom" :center.sync="center" :rotation.sync="rotation"></vl-view>
+      <vl-view ref="view"
+      :zoom.sync="zoom"
+      :center.sync="center"
+      :rotation.sync="rotation"
+      @mounted="viewMounted"
+      ></vl-view>
 
       <Interaction :selectedFeatures="selectedFeatures" @selected="handleSelectedElement" @add:poi="handleAddedPoi" />
 
@@ -32,13 +37,14 @@
       :zoom="zoom"
       :center="center"
       :rotation="rotation"
+      :extent="extent"
       :geolocPosition="geolocPosition"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import CordinationCard from "./CordinationCard.vue";
 import MapElementList from "./MapElementList.vue";
 import Interaction from "./Interaction.vue";
@@ -47,6 +53,7 @@ import { CoordinateList } from "../types";
 import debounce from "debounce";
 // import {fromLonLat} from 'ol/proj';
 import bus from '../bus'
+import {transformExtent} from 'ol/proj';
 
 @Component({
   components: {
@@ -67,9 +74,10 @@ export default class HelloWorld extends Vue {
   selectedFeatures: any = [];
   private pois: any = [];
   private selectedHotel: CoordinateList = null;
-  private path: any = []
+  private path: any = [];
+  private extent: any = [];
   
-  // private yyy = debounce(this.xxx, 1500)
+  private yyy = debounce(this.updateExtent, 500)
 
   handlePosition(event: any) {
     console.log(event);
@@ -82,15 +90,6 @@ export default class HelloWorld extends Vue {
     bus.$on('search', this.handleSearch);
   }
 
-  mounted() {
-    axios.get("http://localhost:8080/api/hotels").then(
-      response =>
-        (this.points = response.data.map(({ name, geo }: any) => ({
-          name,
-          geo: JSON.parse(geo)
-        })))
-    );
-  }
 
   handleSelectedElement(feature: any) {
     const { zoom } = this;
@@ -114,8 +113,10 @@ export default class HelloWorld extends Vue {
     // console.log(fromLonLat([17.064152399999998, 48.1587654]));  
   }
 
-  xxx(event: any) {
-    console.log(event);
+  findHotels() {
+    axios
+    .post("http://localhost:8080/api/hotels", { extent: this.extent })
+    .then(({data}) => this.points = data)
   }
 
   handleAddedPoi(poi: any) {
@@ -142,6 +143,25 @@ export default class HelloWorld extends Vue {
         }));
       });
   }
+
+  viewMounted() {
+    this.updateExtent(true)
+  }
+
+  @Watch('center')
+  xxx() {
+    this.yyy()
+  }
+
+  updateExtent(xx: boolean) {
+    	const olView = (this.$refs.view as any).$view
+      if (olView == null) return
+    
+      this.extent = transformExtent(olView.calculateExtent(), 'EPSG:3857', 'EPSG:4326')
+      !xx && this.findHotels()
+    }
+
+
 }
 </script>
 
