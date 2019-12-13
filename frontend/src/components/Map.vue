@@ -77,7 +77,7 @@ export default class HelloWorld extends Vue {
   private path: any = [];
   private extent: any = [];
   
-  private yyy = debounce(this.updateExtent, 500)
+  private yyy = debounce(this.updateExtent, 700)
 
   handlePosition(event: any) {
     console.log(event);

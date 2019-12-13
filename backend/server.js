@@ -73,7 +73,6 @@ app.post('/api/pois', ({ params, body }, res) => {
         10000
       )
     )
-    .limit(10)
     .then(data => res.send(data))
 })
 
@@ -136,7 +135,7 @@ app.post('/api/search', ({ body }, res) => {
     ))
     .from(DB_TABLE.point)
     .whereNotNull('name')
-    .limit(10)
+    .limit(100)
 
     if (name) {
       query.whereRaw("search_tag @@ to_tsquery('sk', ?)", [name])
