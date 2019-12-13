@@ -4,10 +4,10 @@
     <template slot-scope="select">
       <!-- select styles -->
       <vl-style-box>
-        <vl-style-stroke color="#423e9e" :width="7"></vl-style-stroke>
+        <vl-style-stroke color="#991724" :width="7"></vl-style-stroke>
         <vl-style-fill :color="[254, 178, 76, 0.7]"></vl-style-fill>
         <vl-style-circle :radius="5">
-          <vl-style-stroke color="#423e9e" :width="7"></vl-style-stroke>
+          <vl-style-stroke color="#991724" :width="7"></vl-style-stroke>
           <vl-style-fill :color="[254, 178, 76, 0.7]"></vl-style-fill>
         </vl-style-circle>
       </vl-style-box>
@@ -99,7 +99,7 @@ export default class Interaction extends Vue {
   } 
 
   featureName(feature: any): string {
-    return feature.properties.isPOI ? 'Add to List' : 'Show nearest';
+    return feature.properties.isPOI ? 'Add to List 📄' : 'Select 🏨';
   }
 }
 </script>

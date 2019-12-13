@@ -79,6 +79,7 @@ export default class HelloWorld extends Vue {
 
   created() {
     bus.$on("trip", this.handleSelectedPois);
+    bus.$on('search', this.handleSearch);
   }
 
   mounted() {
@@ -97,20 +98,14 @@ export default class HelloWorld extends Vue {
     
     this.selectedHotel = feature
     bus.$emit('select', {...feature})
-    axios
-      .post("http://localhost:8080/api/pois", {
-        coordinates,
-        zoom
-      })
+  }
+
+  handleSearch(params: any) {
+      axios
+      .post("http://localhost:8080/api/search", params)
       .then(response => {
         console.log(response.data);
-
-        this.pois = response.data.map(({ name, osm_id,  geo }: any) => ({
-          name,
-          id: osm_id,
-          geo: JSON.parse(geo),
-          isPOI: true
-        }));
+        this.pois = response.data;
       });
   }
 

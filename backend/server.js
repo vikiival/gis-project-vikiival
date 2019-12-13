@@ -131,10 +131,38 @@ app.post('/api/path', async ({ params, body }, res) => {
                       ON (edge = gid)
     where ways.the_geom is not null
     ORDER BY seq;
-  `).then(({rows}) => res.send(rows))
+  `)
+  .then(({rows}) => res.send(rows))
 
 })
 
+app.post('/api/search', ({ body }, res) => {
+  const { name, distance } = body.searchParams
+  const [lat, long] = body.coordinates
+   const query = db
+    .select(db.raw(
+      `name, osm_id as id, st_asgeojson(st_transform(way, 4326))::json as geo, hstore_to_json(tags) as meta`
+    ))
+    .from(DB_TABLE.point)
+    .whereNotNull('name')
+    .limit(10)
+
+    if (name) {
+      query.whereRaw("search_tag @@ to_tsquery('sk', ?)", [name])
+    }
+
+    if (distance && body.coordinates) {
+      query.where(
+        st.dwithin(
+          'way',
+          st.transform(st.setSRID(st.makePoint(lat, long), 4326), 3857),
+          distance * 1000
+        )
+      )
+    }
+
+    query.then(data => res.send(data.map(el => ({ ...el, isPOI: true }))))
+})
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
